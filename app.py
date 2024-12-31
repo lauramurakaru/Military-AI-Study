@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.INFO)
 
 # Page Layout Configuration
 PAGE_CONFIG = {
-    "layout": "wide",
+    "layout": "centered",
     "page_title": "Military Decision-Making App",
-    "page_icon": "🛡️",
+    "page_icon": "⚔️",
     "initial_sidebar_state": "collapsed",
      "menu_items": {
         "Get Help": None,
@@ -635,72 +635,82 @@ def main():
     st.progress(st.session_state.progress)
     logging.info(f"Progress: {st.session_state.progress}, Step: {st.session_state.step}")
 
-    # Step 1: Introduction and Scenario Guide
+# Step 1: Introduction and Scenario Guide
     if st.session_state.step == 1:
         logging.info("Entered Step 1: Introduction and Scenario Guide.")
         st.markdown(get_markdown_text("Step 1: Introduction", "subheader"), unsafe_allow_html=True)
         
         st.markdown(get_markdown_text("""
-        Welcome to the Military Decision-Making App. This application is designed for research purposes to explore human-machine collaboration, AI-driven rules of engagement, and augmented decision-making within a military context. By enhancing human intellect and computational capacity, this trained model aims to investigate how human operators interact with machine learning methodologies to make critical decisions in military scenarios.
-
-Please read the *Scenario Guide* below to familiarize yourself with the parameters used in the scenarios.
+        The App explores AI-augmented decision making and human-machine collaboration in military contexts.
+        
+*Review the instructions below for scenario parameters, steps, and tutorials.*
         """, "normal_text"), unsafe_allow_html=True)
 
-        with st.expander("Scenario Guide"):
-            st.write("""
-            **Target_Category**:
-            - The exact object or multiple targets to be engaged. Examples include "Brigade HQ", "Artillery Unit", "Unmanned Aerial Vehicle", etc.
-
-            **Target_Vulnerability**:
-            - Represents the susceptibility of the target to damage from an attack. Values range from **Very Low** to **Very High**.
-
-            **Terrain_Type**:
-            - The area in which the target is present. Examples include "Transportation Hub", "Electric Power Grid Network", "Residential Area", etc.
-
-            **Civilian_Presence**:
-            - An approximate estimate of civilians in the area. Values include ranges like "0", "11-29", "50-99".
-
-            **Damage_Assessment**:
-            - Indicates the expected ease and productivity of the Battle Damage Assessment (BDA) process after the attack. Values range from **Very Low** to **Very High**.
-
-            **Time_Sensitivity**:
-            - Urgency of action required. Values include "High", "Immediate", "Normal".
-
-            **Weaponeering**:
-            - The type of weapon or asset available for engagement. Examples include "Precision Guided Munition", "155mm Artillery", "SOF Unit", etc.
-
-            **Friendly_Fire**:
-            - Risk of friendly fire incidents. Values range from **Very Low** to **Very High**.
-
-            **Politically_Sensitive**:
-            - Indicates the level of political tension and strategic considerations regarding the use of force. Values include "Low", "Medium", "High".
-
-            **Legal_Advice**:
-            - Legal interpretations that may affect the decision. Values include "Lawful", "Questionable", "It depends".
-
-            **Ethical_Concerns**:
-            - How the use of force reflects moral values and beliefs about right and wrong. Values include "Unlikely", "Immoral", "No".
-
-            **Collateral_Damage_Potential**:
-            - Potential for unintended damage. Values range from **Very Low** to **Very High**.
-
-            **AI_Distinction (%)**:
-            - AI-driven system's estimation of Positive Identification (PID) of a target, on a scale of 1-100%.
-
-            **AI_Proportionality (%)**:
-            - AI-driven system's estimation of proportionality, on a scale of 1-100%.
-
-            **AI_Military_Necessity**:
-            - Whether the model assesses the action as necessary for achieving military objectives. Values include "Yes", "Open to Debate".
-
-            **Human_Distinction (%)**:
-            - Human estimation of PID of a target, based on sensor data or direct observation, ranging from 30-100%.
-
-            **Human_Proportionality (%)**:
-            - Human estimation of proportionality, based on sensor data or direct observation, ranging from 30-100%.
-
-            **Human_Military_Necessity**:
-            - Human assessment of whether the action is necessary for achieving military objectives. Values include "Yes", "Open to Debate".
+        st.markdown("""
+            <details>
+            <summary><strong>Scenario Guide</strong></summary>
+            <p>Please familiarize yourself with the parameters used in the scenarios:</p>
+            <ol>
+            <li><strong>Target_Category</strong>: The exact object or multiple targets to be engaged. Examples include <strong>Brigade HQ</strong>, <strong>Artillery Unit</strong>, <strong>Unmanned Aerial Vehicle</strong>, etc.</li>
+            <li><strong>Target_Vulnerability</strong>: Represents the susceptibility of the target to damage from an attack. Values range from <strong>Very Low</strong> to <strong>Very High</strong>.</li>
+            <li><strong>Terrain_Type</strong>: The area in which the target is present. Examples include <strong>Transportation Hub</strong>, <strong>Electric Power Grid Network</strong>, <strong>Residential Area</strong>, etc.</li>
+            <li><strong>Civilian_Presence</strong>: An approximate estimate of civilians in the area. Values include ranges like <strong>0</strong>, <strong>11-29</strong>, <strong>50-99</strong>, etc.</li>
+            <li><strong>Damage_Assessment</strong>: Indicates the expected ease and productivity of the Battle Damage Assessment (BDA) process after the attack. Values range from <strong>Very Low</strong> to <strong>Very High</strong>.</li>
+            <li><strong>Time_Sensitivity</strong>: Urgency of action required. Values include <strong>High</strong>, <strong>Immediate</strong>, <strong>Normal</strong>.</li>
+            <li><strong>Weaponeering</strong>: The type of weapon or asset available for engagement. Examples include <strong>Precision Guided Munition</strong>, <strong>155mm Artillery</strong>, <strong>SOF Unit</strong>, etc.</li>
+            <li><strong>Friendly_Fire</strong>: Risk of friendly fire incidents. Values range from <strong>Very Low</strong> to <strong>Very High</strong>.</li>
+            <li><strong>Politically_Sensitive</strong>: Indicates the level of political tension and strategic considerations regarding the use of force. Values include <strong>Low</strong>, <strong>Medium</strong>, <strong>High</strong>.</li>
+            <li><strong>Legal_Advice</strong>: Legal interpretations that may affect the decision. Values include <strong>Lawful</strong>, <strong>Questionable</strong>, <strong>It depends</strong>, etc.</li>
+            <li><strong>Ethical_Concerns</strong>: How the use of force reflects moral values and beliefs about right and wrong. Values include <strong>Unlikely</strong>, <strong>Immoral</strong>, <strong>No</strong>, etc.</li>
+            <li><strong>Collateral_Damage_Potential</strong>: Potential for unintended damage. Values range from <strong>Very Low</strong> to <strong>Very High</strong>.</li>
+            <li><strong>AI_Distinction (%)</strong>: AI-driven system's estimation of Positive Identification (PID) of a target, on a scale of <strong>1-100%</strong>.</li>
+            <li><strong>AI_Proportionality (%)</strong>: AI-driven system's estimation of proportionality, on a scale of <strong>1-100%</strong>.</li>
+            <li><strong>AI_Military_Necessity</strong>: Whether the model assesses the action as necessary for achieving military objectives. Values include <strong>Yes</strong>, <strong>Open to Debate</strong>.</li>
+            <li><strong>Human_Distinction (%)</strong>: Human estimation of PID of a target, based on sensor data or direct observation, ranging from <strong>30-100%</strong>.</li>
+            <li><strong>Human_Proportionality (%)</strong>: Human estimation of proportionality, based on sensor data or direct observation, ranging from <strong>30-100%</strong>.</li>
+            <li><strong>Human_Military_Necessity</strong>: Human assessment of whether the action is necessary for achieving military objectives. Values include <strong>Yes</strong>, <strong>Open to Debate</strong>.</li>
+            </ol>
+            </details>
+            """, unsafe_allow_html=True)
+        st.markdown("""
+            <details>
+            <summary><strong>Background</strong></summary>
+            <ol>
+            <li>As the commander of an infantry unit, your mission is to secure an object and protect it from potential destruction caused by enemy action.</li>
+            <li>Higher command will provide you with intelligence and resources to influence targets and achieve desired effects within your area of responsibility.</li>
+            <li>You will engage in 10 scenarios designed to rehearse decision-making with the assistance of an AI-driven model.</li>
+            <li>The information presented in each scenario may be conflicting, requiring you to carefully evaluate its reliability.</li>
+            <li>It is your responsibility to decide whether to trust the model's recommendations or rely on your own judgment.</li>
+            </ol>
+            </details>
+            """, unsafe_allow_html=True)
+        st.markdown("""
+            <details>
+            <summary><strong>Steps</strong></summary>
+            <ul>
+            <li>Step 1: Introduction</li>
+            <li>Step 2: Generate Scenario</li>
+            <li>Step 3: Review Scenario</li>
+            <li>Step 4: Submit Decision</li>
+            <li>Step 5: Generate Model Prediction</li>
+            <li>Step 6: Reveal Model Reasoning</li>
+            <li>Step 7: Provide Confirmation Feedback</li>
+            <li>Step 8: Share Additional Feedback</li>
+            </ul>
+            <p><strong>Note:</strong></p>
+            <ul>
+            <li>Each scenario's parameters are randomized, which may lead to contradictory data. However, it is important to make decisions based on the available data in the given context and justify your judgment by providing feedback, if necessary.</li>
+            <li>A 5-minute timer is provided for submitting decisions, intended solely for research purposes.</li>
+            <li>In the 10-scenario loop, odd-numbered scenarios allow you to submit decisions before the model's prediction. In even-numbered scenarios, the model predicts first. This alternating sequence aims to calibrate trust in the AI model for research purposes.</li>
+            </ul>
+            </details>
+            """, unsafe_allow_html=True)
+        st.markdown("""
+                **Getting Started:**
+                - Refer to the "Scenario Guide" if necessary to refresh your understanding of parameter definitions.
+                - Take time to review scenario details.
+                - Submit your decision. If the timer expires, a decision will be auto-submitted.
+                - Next, you'll interact with a pre-trained AI system trained on hypothetical scenarios.
             """)
 
         st.button("Proceed to Scenario Generation", key="proceed_to_scenario_generation", on_click=next_step)
@@ -751,11 +761,13 @@ Please read the *Scenario Guide* below to familiarize yourself with the paramete
         display_scenario_with_scores(st.session_state.scenario)
         
         # Navigation Buttons
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)  # Add space between the scenario and buttons
         col_back, col_next = st.columns(2)
         with col_back:
             st.button("Back", key="back_step3", on_click=prev_step)
         with col_next:
             st.button("Proceed to Decision Making", key="proceed_to_decision_step3", on_click=next_step)
+
 
     # Step 4: Submit Decision
     elif st.session_state.step == 4:
