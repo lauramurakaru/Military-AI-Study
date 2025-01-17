@@ -48,7 +48,7 @@ for var in session_vars:
 
 # Initialize time
 if "time_remaining" not in st.session_state:
-    st.session_state.time_remaining = 180  # 3 minutes in seconds
+    st.session_state.time_remaining = 300 
 if "timer_active" not in st.session_state:
     st.session_state.timer_active = False
 if "start" not in st.session_state or st.session_state.start is None:
