@@ -48,7 +48,7 @@ for var in session_vars:
 
 # Initialize time
 if "time_remaining" not in st.session_state:
-    st.session_state.time_remaining = 300 
+    st.session_state.time_remaining = 300
 if "timer_active" not in st.session_state:
     st.session_state.timer_active = False
 if "start" not in st.session_state or st.session_state.start is None:
@@ -366,14 +366,22 @@ def save_data_to_google_sheet(data):
     sheet = get_google_sheet()
     if sheet:
         try:
+            # Include scenario categories and values as a single string
+            scenario_details = ", ".join(
+                f"{key}: {value}" for key, value in data.get('scenario', {}).items()
+            )
+            
+            # Prepare the row data
             row = [
-                data.get('Participant Decision', ''),
-                data.get('Model Prediction', ''),
-                data.get('Override Reason', ''),
-                data.get('Confirmation Feedback', ''),
-                data.get('Additional Feedback', ''),
-                data.get('Decision Time (seconds)', '')
+                scenario_details,  # Column 1: Scenario categories and values
+                data.get('Participant Decision', ''),  # Column 2
+                data.get('Model Prediction', ''),  # Column 3
+                data.get('Decision Time (seconds)', ''),  # Column 4
+                data.get('Confirmation Feedback', ''),  # Column 5
+                data.get('Additional Feedback', ''),  # Column 6
             ]
+            
+            # Append the row to the Google Sheet
             sheet.append_row(row)
             logging.info("Data appended to Google Sheets successfully.")
         except Exception as e:
@@ -436,7 +444,7 @@ def prev_step():
     if st.session_state.step > 1:
         st.session_state.step -= 1
         st.session_state.timer_active = False
-        st.session_state.time_remaining = 180
+        st.session_state.time_remaining = 300
         logging.info(f"Moved back to Step {st.session_state.step}")
 
 # Feedback Handling Functions
@@ -447,12 +455,12 @@ def handle_submit_feedback():
         st.warning("Please provide feedback before submitting.")
     else:
         data = {
-            'Participant Decision': st.session_state.user_decision,
-            'Model Prediction': st.session_state.model_prediction_label,
-            'Override Reason': st.session_state.override_reason,
-            'Confirmation Feedback': st.session_state.confirmation_feedback,
-            'Additional Feedback': feedback,
-            'Decision Time (seconds)': st.session_state.decision_time
+            "scenario": st.session_state.scenario,  # Add scenario details
+            "Participant Decision": st.session_state.user_decision,
+            "Model Prediction": st.session_state.model_prediction_label,
+            "Decision Time (seconds)": st.session_state.decision_time,
+            "Confirmation Feedback": st.session_state.confirmation_feedback,
+            "Additional Feedback": feedback
         }
         save_data_to_google_sheet(data)
         st.success("Your responses have been recorded. Thank you!")
@@ -464,7 +472,7 @@ def handle_timeout_decision():
     """Handle case when time runs out without a decision."""
 
     st.session_state.user_decision = "No Decision - Time Expired"
-    st.session_state.decision_time = 180
+    st.session_state.decision_time = 300
 
     return {
         'Participant Decision': "No Decision - Time Expired",
@@ -472,17 +480,17 @@ def handle_timeout_decision():
         'Override Reason': st.session_state.override_reason,
         'Confirmation Feedback': "N/A - Timeout",
         'Additional Feedback': "Participant did not complete decision within time limit",
-        'Decision Time (seconds)': 180  # Full time expired
+        'Decision Time (seconds)': 300
     }
 def handle_skip_feedback():
     """Handle skipping the feedback section."""
     data = {
-        'Participant Decision': st.session_state.user_decision,
-        'Model Prediction': st.session_state.model_prediction_label,
-        'Override Reason': st.session_state.override_reason,
-        'Confirmation Feedback': st.session_state.confirmation_feedback,
-        'Additional Feedback': "",
-        'Decision Time (seconds)': st.session_state.decision_time
+        "scenario": st.session_state.scenario,  # Add scenario details
+        "Participant Decision": st.session_state.user_decision,
+        "Model Prediction": st.session_state.model_prediction_label,
+        "Decision Time (seconds)": st.session_state.decision_time,
+        "Confirmation Feedback": st.session_state.confirmation_feedback,
+        "Additional Feedback": feedback
     }
     save_data_to_google_sheet(data)
     st.success("Your responses have been recorded. Thank you!")
@@ -776,7 +784,7 @@ def main():
         st.markdown(get_markdown_text("Please review the scenario and select your decision below.", "normal_text"), unsafe_allow_html=True)
         
         if not st.session_state.timer_active:
-            st.session_state.time_remaining = 180
+            st.session_state.time_remaining = 300
             st.session_state.timer_active = True
             st.session_state.start = time.time()
 
@@ -822,10 +830,10 @@ def main():
                 else:
                     # Normal decision submission
                     if "start" in st.session_state and isinstance(st.session_state.start, float):
-                        st.session_state.decision_time = 180 - (time.time() - st.session_state.start)
+                        st.session_state.decision_time = 300 - (time.time() - st.session_state.start)
                     else:
                         st.session_state.start = time.time()
-                        st.session_state.decision_time = 180
+                        st.session_state.decision_time = 300
                 st.session_state.submitted_decision = True
                 st.session_state.timer_active = False
                 st.success("Decision submitted successfully!")
