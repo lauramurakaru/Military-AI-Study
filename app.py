@@ -55,6 +55,7 @@ if "start" not in st.session_state or st.session_state.start is None:
     st.session_state.start = time.time()
 
 
+
 if "start" not in st.session_state:
     st.session_state.start = None
 
@@ -455,10 +456,10 @@ def handle_submit_feedback():
         st.warning("Please provide feedback before submitting.")
     else:
         data = {
-            "scenario": st.session_state.scenario,  # Add scenario details
+            "scenario": st.session_state.scenario,
             "Participant Decision": st.session_state.user_decision,
             "Model Prediction": st.session_state.model_prediction_label,
-            "Decision Time (seconds)": st.session_state.decision_time,
+            "Decision Time (seconds)": round(st.session_state.decision_time),
             "Confirmation Feedback": st.session_state.confirmation_feedback,
             "Additional Feedback": feedback
         }
@@ -484,13 +485,15 @@ def handle_timeout_decision():
     }
 def handle_skip_feedback():
     """Handle skipping the feedback section."""
+
+    feedback_text = st.session_state.get("feedback_box", "")
     data = {
-        "scenario": st.session_state.scenario,  # Add scenario details
+        "scenario": st.session_state.scenario,
         "Participant Decision": st.session_state.user_decision,
         "Model Prediction": st.session_state.model_prediction_label,
-        "Decision Time (seconds)": st.session_state.decision_time,
+        "Decision Time (seconds)": round(st.session_state.decision_time),
         "Confirmation Feedback": st.session_state.confirmation_feedback,
-        "Additional Feedback": feedback
+        "Additional Feedback": feedback_text
     }
     save_data_to_google_sheet(data)
     st.success("Your responses have been recorded. Thank you!")
@@ -500,6 +503,31 @@ def handle_skip_feedback():
 def main():
     """Main application function."""
     # Add custom CSS
+    st.markdown("""
+        <style>
+            .step-title {
+                font-size: 20px;
+                font-weight: bold;
+                color: #003366;
+                margin-bottom: 2px;  /* Reduce spacing below the title */
+            }
+            .scenario-guide {
+                margin-top: -15px;  /* Reduce spacing above Scenario Guide */
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <style>
+    /* Increase spacing around st.button */
+    .stButton > button {
+        margin-top: 1rem;  /* top spacing */
+        margin-bottom: 1rem;  /* bottom spacing */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
     st.markdown("""
         <style>
             /* Hide Streamlit and GitHub elements */
@@ -646,11 +674,11 @@ def main():
 # Step 1: Introduction and Scenario Guide
     if st.session_state.step == 1:
         logging.info("Entered Step 1: Introduction and Scenario Guide.")
-        st.markdown(get_markdown_text("Step 1: Introduction", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 1: Introduction</div>", unsafe_allow_html=True)
         
         st.markdown(get_markdown_text("""
-        The App explores AI-augmented decision making and human-machine collaboration in military contexts.
         
+The App explores AI-augmented decision making and human-machine teaming in military contexts.
 *Review the instructions below for scenario parameters, steps, and tutorials.*
         """, "normal_text"), unsafe_allow_html=True)
 
@@ -714,20 +742,30 @@ def main():
             </details>
             """, unsafe_allow_html=True)
         st.markdown("""
-                **Getting Started:**
-                - Refer to the "Scenario Guide" if necessary to refresh your understanding of parameter definitions.
-                - Take time to review scenario details.
-                - Submit your decision. If the timer expires, a decision will be auto-submitted.
-                - Next, you'll interact with a pre-trained AI system trained on hypothetical scenarios.
-            """)
+            <details>
+            <summary><strong>Getting Started</strong></summary>
+            <ol>
+                <li>Refer to the "Scenario Guide" if necessary to refresh your understanding of parameter definitions.</li>
+                <li>Take time to review scenario details.</li>
+                <li>Submit your decision. If the timer expires, a decision will be auto-submitted.</li>
+                <li>Next, you'll interact with a pre-trained AI model trained on hypothetical scenarios.</li>
+            </ol>
+            </details>
+        """, unsafe_allow_html=True)
 
         st.button("Proceed to Scenario Generation", key="proceed_to_scenario_generation", on_click=next_step)
 
     # Step 2: Generate Scenario
     elif st.session_state.step == 2:
         logging.info("Entered Step 2: Generate Scenario.")
-        st.markdown(get_markdown_text("Step 2: Generate Scenario", "subheader"), unsafe_allow_html=True)
-        st.markdown(get_markdown_text("Click the button below to generate a new scenario.", "normal_text"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 2: Generate Scenario</div>", unsafe_allow_html=True)
+
+        # Intro text (fixed closing </i>)
+        st.markdown(get_markdown_text(
+            "<i>Click the button below to generate a new scenario.</i>",
+            "normal_text"
+        ), unsafe_allow_html=True)
+  
         
         generate_button = st.button("Generate Scenario", key="generate_scenario")
         if generate_button:
@@ -765,7 +803,7 @@ def main():
     # Step 3: Review Scenario
     elif st.session_state.step == 3:
         logging.info("Entered Step 3: Review Scenario.")
-        st.markdown(get_markdown_text("Step 3: Review Scenario", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 3: Review Scenario</div>", unsafe_allow_html=True)
         display_scenario_with_scores(st.session_state.scenario)
         
         # Navigation Buttons
@@ -776,85 +814,98 @@ def main():
         with col_next:
             st.button("Proceed to Decision Making", key="proceed_to_decision_step3", on_click=next_step)
 
-
     # Step 4: Submit Decision
     elif st.session_state.step == 4:
         logging.info("Entered Step 4: Submit Decision.")
-        st.markdown(get_markdown_text("Step 4: Submit Decision", "subheader"), unsafe_allow_html=True)
-        st.markdown(get_markdown_text("Please review the scenario and select your decision below.", "normal_text"), unsafe_allow_html=True)
-        
+
+    # Intro text (fixed closing </i>)
+        st.markdown(get_markdown_text(
+            "<i>Please review the scenario and select your decision below.</i>",
+            "normal_text"
+        ), unsafe_allow_html=True)
+
+    # Initialize timer if not active
         if not st.session_state.timer_active:
             st.session_state.time_remaining = 300
             st.session_state.timer_active = True
             st.session_state.start = time.time()
 
+    # Show the current countdown
         mins, secs = divmod(st.session_state.time_remaining, 60)
         st.markdown(f"""
-        <div style='
-            font-size: 24px;
-            color: #8B0000;
-            font-weight: bold;
-            text-align: Left;
-            padding: 1px;
-            margin: 1px 0;
-        '>
-            Time Remaining - {mins:02d}:{secs:02d}
-        </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-size: 20px; font-weight: bold; color: #003366;">
+                    Step 4: Submit Decision
+                </div>
+                <div style="font-size: 18px; color: #8B0000;">
+                    Time remaining - {mins:02d}:{secs:02d}
+                </div>
+            </div>
         """, unsafe_allow_html=True)
 
+    # Display the scenario
         display_scenario_with_scores(st.session_state.scenario)
-        
-        user_decision = st.radio(
-            "",
-            ["Engage", "Do Not Engage", "Ask Authorization", "Do Not Know"],
-            key="decision",
-            help="Select the most appropriate decision based on the scenario."
-        )
-        if user_decision:
-            st.session_state.user_decision = user_decision
 
-        # Navigation Buttons
+    # Only allow radio selection if there's still time
+        if st.session_state.time_remaining > 0:
+            user_decision = st.radio(
+                "",
+                ["Engage", "Do Not Engage", "Ask Authorization", "Do Not Know"],
+                key="decision",
+                help="Select the most appropriate decision based on the scenario."
+            )
+            if user_decision:
+                st.session_state.user_decision = user_decision
+        else:
+            st.warning("Time's up! No more decisions allowed.")
+
+    # Navigation buttons
         col_back, col_submit = st.columns(2)
         with col_back:
             st.button("Back", key="back_step4", on_click=prev_step)
         with col_submit:
-            submit_decision = st.button("Submit Decision", key="submit_decision")
-            if submit_decision or st.session_state.time_remaining <= 0:
-                if st.session_state.time_remaining <= 0:
-                    # Time expired without decision
+        # Only show the "Submit Decision" button if time > 0
+            if st.session_state.time_remaining > 0:
+                submit_decision = st.button("Submit Decision", key="submit_decision")
+                if submit_decision:
+                # Record how many seconds left when user submits
+                    if isinstance(st.session_state.start, float):
+                        st.session_state.decision_time = 300 - (time.time() - st.session_state.start)
+                    else:
+                        st.session_state.start = time.time()
+                        st.session_state.decision_time = 300
+
+                    st.session_state.submitted_decision = True
+                    st.session_state.timer_active = False
+                    st.success("Decision submitted successfully!")
+
+    # If decision was submitted, show "Next" button
+        if st.session_state.submitted_decision:
+            st.button("Next", key="next_step4", on_click=next_step)
+
+    # === MANUAL COUNTDOWN LOOP (runs last) ===
+        if st.session_state.timer_active and st.session_state.time_remaining > 0:
+        # Sleep for 1 second, then decrement time_remaining
+            time.sleep(1)
+            st.session_state.time_remaining -= 1
+
+        # If timer just hit 0, auto-submit and go next
+            if st.session_state.time_remaining == 0:
+                if not st.session_state.submitted_decision:
                     data = handle_timeout_decision()
                     save_data_to_google_sheet(data)
                     st.warning("Time's up! Decision auto-submitted.")
                     st.session_state.submitted_decision = True
                     st.session_state.timer_active = False
-                else:
-                    # Normal decision submission
-                    if "start" in st.session_state and isinstance(st.session_state.start, float):
-                        st.session_state.decision_time = 300 - (time.time() - st.session_state.start)
-                    else:
-                        st.session_state.start = time.time()
-                        st.session_state.decision_time = 300
-                st.session_state.submitted_decision = True
-                st.session_state.timer_active = False
-                st.success("Decision submitted successfully!")
 
+                st.session_state.step += 1
 
-        if st.session_state.submitted_decision:
-            next_button = st.button("Next", key="next_step4", on_click=next_step)
-            if next_button:
-                next_step()
-
-        # Update timer
-        if st.session_state.timer_active and st.session_state.time_remaining > 0:
-            time.sleep(1)
-            st.session_state.time_remaining -= 1
             st.rerun()
 
-
-     # Step 5: Generate Model Prediction
+    # Step 5: Generate Model Prediction
     elif st.session_state.step == 5:
         logging.info("Entered Step 5: Generate Model Prediction.")
-        st.markdown(get_markdown_text("Step 5: Generate Model Prediction", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 5: Generate Model Prediction</div>", unsafe_allow_html=True)
         st.write(get_markdown_text(f"<b>Your Decision</b>: {st.session_state.user_decision}", "decision_text"), unsafe_allow_html=True)
         
         generate_prediction = st.button("Generate Model Prediction", key="generate_prediction")
@@ -903,7 +954,7 @@ def main():
     # Step 6: Reveal Model Reasoning
     elif st.session_state.step == 6:
         logging.info("Entered Step 6: Reveal Model Reasoning.")
-        st.markdown(get_markdown_text("Step 6: Reveal Model Reasoning", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 6: Reveal Model Reasoning</div>", unsafe_allow_html=True)
 
         st.markdown(f"""
             <div style='color: #003366; font-size: 20px; margin-bottom: 20px;'>
@@ -963,8 +1014,7 @@ def main():
 
     # Step 7: Provide Confirmation Feedback
     elif st.session_state.step == 7:
-        logging.info("Entered Step 7: Provide Confirmation Feedback.")
-        st.markdown(get_markdown_text("Step 7: Provide Confirmation Feedback", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 7: Provide Confirmation Feedback</div>", unsafe_allow_html=True)
         
         # Keep only this version with tight line spacing
         st.markdown(f"""<div style='line-height: 1.2;'>
@@ -1010,10 +1060,10 @@ def main():
     # Step 8: Share Additional Feedback
     elif st.session_state.step == 8:
         logging.info("Entered Step 8: Share Additional Feedback.")
-        st.markdown(get_markdown_text("Step 8: Share Additional Feedback", "subheader"), unsafe_allow_html=True)
+        st.markdown("<div class='step-title'>Step 8: Share Additional Feedback</div>", unsafe_allow_html=True)
         st.markdown(get_markdown_text("Please provide any additional thoughts or comments below.", "normal_text"), unsafe_allow_html=True)
         
-        feedback = st.text_area(
+        st.text_area(
             "",
             key="feedback_box",
             help="Share any additional thoughts or comments."
