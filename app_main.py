@@ -159,22 +159,15 @@ def get_random_scenario(df):
     return df.iloc[random_index]
 
 def calculate_percentages(scores):
-    abs_scores = {k: abs(v) for k, v in scores.items()}
-    total_abs = sum(abs_scores.values())
+    total_abs = sum(abs(v) for k, v in scores.items() if k != "Total_Score")
     if total_abs == 0:
-        return {k: 0 for k in scores}
-    raw_percentages = {k: (v / total_abs) * 100 for k, v in abs_scores.items()}
-    rounded_percentages = {}
-    total_rounded = 0
-    items = list(raw_percentages.items())
-    for k, v in items[:-1]:
-        r = round(v, 2)
-        rounded_percentages[k] = r
-        total_rounded += r
-    last_key = items[-1][0]
-    rounded_percentages[last_key] = round(100 - total_rounded, 2)
-    signed_percentages = {key: pct if scores[key] >= 0 else -pct for key, pct in rounded_percentages.items()}
-    return signed_percentages
+        return {k: 0 for k in scores if k != "Total_Score"}
+    percentages = {
+        k: round((abs(v) / total_abs) * 100, 2) * (1 if v >= 0 else -1)
+        for k, v in scores.items() if k != "Total_Score"
+    }
+    return percentages
+
 
 def get_score_display(score, percentage):
     if score > 0:
@@ -224,6 +217,8 @@ def get_final_prediction(scenario_df, model):
     except Exception as e:
         logging.error(f"Error in get_final_prediction: {e}")
         return None, f"Error in prediction: {e}", None
+
+
 
 def apply_override_rules(row):
     try:
@@ -811,8 +806,14 @@ The App explores human-machine teaming in military contexts.
                 <p style='margin: 5px 0;'>Model Prediction: {st.session_state.model_prediction_label}</p>
             </div>
         """, unsafe_allow_html=True)
+
+        # Only show override rules when applicable
         if "OVERRIDE APPLIED:" in st.session_state.override_reason:
-            st.markdown(get_markdown_text(f"**Override Rule Applied:** {st.session_state.override_reason.replace('OVERRIDE APPLIED: ', '')}", "highlighted_text"), unsafe_allow_html=True)
+            st.markdown(get_markdown_text(
+                f"**Override Rule Applied:** {st.session_state.override_reason.replace('OVERRIDE APPLIED: ', '')}", 
+                "highlighted_text"
+            ), unsafe_allow_html=True)
+
         display_scenario_with_scores(st.session_state.scenario, feature_importances=rf_model_loaded.feature_importances_ if hasattr(rf_model_loaded, 'feature_importances_') else None, override_reason=st.session_state.override_reason)
         help_container = st.container()
         with help_container:
@@ -911,6 +912,7 @@ The App explores human-machine teaming in military contexts.
                 st.rerun()
     else:
         st.markdown("Other steps here...")
+
 
 if __name__ == '__main__':
     main()
