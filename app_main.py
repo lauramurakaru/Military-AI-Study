@@ -23,8 +23,8 @@ PAGE_CONFIG = {
         "About": None
     }
 }
-st.set_page_config(**PAGE_CONFIG)
 
+st.set_page_config(**PAGE_CONFIG)
 # ---------------------------
 # Session State Initialization (including multi-scenario variables)
 # ---------------------------
