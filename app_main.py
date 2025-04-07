@@ -6,25 +6,15 @@ import os
 import logging
 import time
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
+
 
 # ---------------------------
 # Logging & Page Configuration
 # ---------------------------
-logging.basicConfig(level=logging.INFO)
-PAGE_CONFIG = {
-    "layout": "centered",
-    "page_title": "Military Decision-Making App",
-    "page_icon": "⚔️",
-    "initial_sidebar_state": "collapsed",
-    "menu_items": {
-        "Get Help": None,
-        "Report a bug": None,
-        "About": None
-    }
-}
 
-st.set_page_config(**PAGE_CONFIG)
+
+
 # ---------------------------
 # Session State Initialization (including multi-scenario variables)
 # ---------------------------
@@ -278,21 +268,24 @@ def apply_override_rules(row):
         return None, "No override rules applied"
 
 def get_google_sheet():
+    """Connect to Google Sheets."""
     try:
         scope = [
             "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/spreadsheets",
+            'https://www.googleapis.com/auth/spreadsheets',
             "https://www.googleapis.com/auth/drive.file",
             "https://www.googleapis.com/auth/drive"
         ]
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(
+            st.secrets["gcp_service_account"], scope
+        )
         client = gspread.authorize(creds)
         sheet = client.open("Study_data").sheet1
         return sheet
     except Exception as e:
         st.error(f"Error connecting to Google Sheets: {e}")
         logging.error(f"Error connecting to Google Sheets: {e}")
-        return None
+        return None 
 
 def save_data_to_google_sheet(data):
     sheet = get_google_sheet()
