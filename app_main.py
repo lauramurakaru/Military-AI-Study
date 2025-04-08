@@ -13,6 +13,20 @@ from google.oauth2.service_account import Credentials
 # Logging & Page Configuration
 # ---------------------------
 
+logging.basicConfig(level=logging.INFO)
+
+# Page Layout Configuration
+PAGE_CONFIG = {
+    "layout": "wide",
+    "page_title": "Military Decision-Making App",
+    "page_icon": "🛡️",
+    "initial_sidebar_state": "collapsed",
+     "menu_items": {
+        "Get Help": None,
+        "Report a bug": None,
+        "About": None
+    }
+}
 
 
 # ---------------------------
@@ -285,7 +299,7 @@ def get_google_sheet():
     except Exception as e:
         st.error(f"Error connecting to Google Sheets: {e}")
         logging.error(f"Error connecting to Google Sheets: {e}")
-        return None 
+        return None
 
 def save_data_to_google_sheet(data):
     sheet = get_google_sheet()
